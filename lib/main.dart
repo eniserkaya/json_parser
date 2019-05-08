@@ -51,13 +51,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body:Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            MyCard(kullanici),
-          ],
-
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          MyCard(kullanici),
+        ],
       ),
     );
   }
@@ -66,7 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
     var dio = Dio();
     createHttpRequestConfig(dio);
     Response response;
-    await dio.get('https://www.eniserkaya.com/tutorials/flutter/json_parser.php').then((resp) {
+    await dio
+        .get('https://www.eniserkaya.com/tutorials/flutter/json_parser.php')
+        .then((resp) {
       response = resp;
     });
     return response;
@@ -86,37 +87,24 @@ class MyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List _children = <Widget>[];
     if (kullanici == null) {
-      return Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-
-          children: <Widget>[
-            PaddingText('Ad:'),
-            PaddingText('Soyad:'),
-            PaddingText('Gezilen Yerler:')
-          ],
-        ),
-      );
+      _children.add(PaddingText('Güncelleniyor...'));
     } else {
-      return Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-
-          children: <Widget>[
-            PaddingText('Ad: ' + kullanici.ad),
-            PaddingText('Soyad: ' + kullanici.soyad ),
-            PaddingText('Gezilen Yerler:' +
-                kullanici.gezilenYerler
-                    .map((sehir) => sehir.sehirAdi)
-                    .join(','))
-          ],
-        ),
-      );
+      _children.add(PaddingText('Ad: ' + kullanici.ad));
+      _children.add(PaddingText('Soyad: ' + kullanici.soyad));
+      _children.add(PaddingText('Gezilen Yerler:' +
+          kullanici.gezilenYerler.map((sehir) => sehir.sehirAdi).join(',')));
     }
+
+    return Card(
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch, children: _children),
+    );
   }
 }
-class PaddingText extends StatelessWidget{
+
+class PaddingText extends StatelessWidget {
   String msg;
 
   PaddingText(this.msg);
@@ -128,5 +116,4 @@ class PaddingText extends StatelessWidget{
       child: Text(msg),
     );
   }
-
 }
