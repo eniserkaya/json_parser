@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:json_parser/model/kullanici.dart';
+import 'package:json_parser/model/sehir.dart';
 
 void main() => runApp(MyApp());
 
@@ -25,6 +30,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Kullanici kullanici;
+  String gezdigiYerler;
+  String kullaniciAd, kullaniciSoyad;
+
+  @override
+  void initState() {
+    sunucudanVerileriGetir().then((response) {
+      kullanici = Kullanici.fromJson(json.decode(response.data));
+      setState(() {
+        debugPrint('ui updated');
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,17 +51,82 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body:Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Card(child: Column(children: <Widget>[
-             
-            ],),
-            )
+            MyCard(kullanici),
           ],
-        ),
+
       ),
     );
   }
+
+  Future<Response> sunucudanVerileriGetir() async {
+    var dio = Dio();
+    createHttpRequestConfig(dio);
+    Response response;
+    await dio.get('https://www.eniserkaya.com/tutorials/flutter/json_parser.php').then((resp) {
+      response = resp;
+    });
+    return response;
+  }
+
+  createHttpRequestConfig(dio) {
+    dio.options.connectTimeout = 15000;
+    dio.options.receiveTimeout = 15000;
+    dio.options.responseType = ResponseType.plain;
+  }
+}
+
+class MyCard extends StatelessWidget {
+  Kullanici kullanici;
+
+  MyCard(this.kullanici);
+
+  @override
+  Widget build(BuildContext context) {
+    if (kullanici == null) {
+      return Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+
+          children: <Widget>[
+            PaddingText('Ad:'),
+            PaddingText('Soyad:'),
+            PaddingText('Gezilen Yerler:')
+          ],
+        ),
+      );
+    } else {
+      return Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+
+          children: <Widget>[
+            PaddingText('Ad: ' + kullanici.ad),
+            PaddingText('Soyad: ' + kullanici.soyad ),
+            PaddingText('Gezilen Yerler:' +
+                kullanici.gezilenYerler
+                    .map((sehir) => sehir.sehirAdi)
+                    .join(','))
+          ],
+        ),
+      );
+    }
+  }
+}
+class PaddingText extends StatelessWidget{
+  String msg;
+
+  PaddingText(this.msg);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(msg),
+    );
+  }
+
 }

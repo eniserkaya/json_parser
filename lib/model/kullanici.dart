@@ -9,6 +9,8 @@ class Kullanici extends Object {
   String soyad;
   List<Sehir> gezilenYerler;
 
+
+
   Kullanici(this.ad, this.soyad, this.gezilenYerler);
 
   factory Kullanici.fromJson(Map<String, dynamic> json) =>
